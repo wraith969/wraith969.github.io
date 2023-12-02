@@ -33,11 +33,13 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 
 * * *
 
-### **Sql Injection Notes:~#**
+### **Sql Injection :~#**
 
 
 
 [PortSwigger Academy](https://github.com/wraith969/wraith969.github.io/blob/main/posts/sqli/portswigger.html) `SQL INJECTION` 
+[DVWA SQLI Walkthrough](https://github.com/wraith969/wraith969.github.io/blob/main/posts/sqli/DVWA.html) `SQL INJECTION, CHALLENGE` 
+
 
 
 * * *
