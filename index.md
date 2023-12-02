@@ -7,7 +7,8 @@ title: Home
 
 * * *
 
-### Welcome To My Cyber Security Blog 🙂 , will be uploading Ctf walkthroughs, web exploitation tutorials and other cybersecurity contents
+### Welcome To My Cyber Security Blog 🙂  
+Will be uploading Ctf walkthroughs, web exploitation tutorials and other cybersecurity contents
 
 * * *
 
