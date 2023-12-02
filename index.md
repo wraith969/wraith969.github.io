@@ -23,7 +23,7 @@ title: Home
 
 - **My Name:** `Yusuf Bala Babaisah`
 - **Also Known As:** `Wraith`
-- **What Do I Do:** `CTF // Cybersecurity // SQLI`
+- **What Do I Do:** `CTF // Cybersecurity // Ethical Hacking`
 - **Twitter:** [Twitter/@Wraith](https://twitter.com/_Wraith6)
 - **LinkedIn:** [LinkedIn/Yusuf-Bala](https://www.linkedin.com/in/yusuf-bala-babaisah-275219280/)
 
