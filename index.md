@@ -31,10 +31,16 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 * * *
 
 
+* * *
+
+### **Sql Injection Notes:~#**
 
 
 
+[PortSwigger Academy](https://github.com/wraith969/wraith969.github.io/blob/main/posts/sqli/portswigger.html) `SQL INJECTION` 
 
+
+* * *
 
 
 <!--* * * 
