@@ -26,7 +26,7 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 - **Also Known As:** `Wraith`
 - **What Do I Do:** `CTF // Cybersecurity // Ethical Hacking`
 - **Twitter:** [Twitter/@Wraith](https://twitter.com/_Wraith6)
-- **LinkedIn:** [LinkedIn/Yusuf-Bala](https://www.linkedin.com/in/yusuf-bala-babaisah-275219280/)
+- **LinkedIn:** [LinkedIn/Yusuf-****](https://www.linkedin.com/in/yusuf-bala-babaisah-275219280/)
 
 * * *
 
