@@ -37,9 +37,9 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 
 
 
--> [PortSwigger Academy](https://github.com/wraith969/wraith969.github.io/posts/sqli/DVWA.html) `SQL INJECTION` 
+-> [PortSwigger Academy](https://wraith969.github.io/posts/sqli/DVWA.html) `SQL INJECTION` 
 
--> [DVWA SQLI Walkthrough](https://github.com/wraith969/wraith969.github.io/posts/sqli/portswigger.md) `SQL INJECTION, CHALLENGE` 
+-> [DVWA SQLI Walkthrough](https://wraith969.github.io/posts/sqli/portswigger.md) `SQL INJECTION, CHALLENGE` 
 
 
 
