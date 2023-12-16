@@ -22,7 +22,7 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 
 * * *
 
-- **My Name:** `Yusuf Bala Babaisah`
+- **My Name:** `Yusuf **** *******`
 - **Also Known As:** `Wraith`
 - **What Do I Do:** `CTF // Cybersecurity // Ethical Hacking`
 - **Twitter:** [Twitter/@Wraith](https://twitter.com/_Wraith6)
