@@ -1,9 +1,12 @@
-Hello 
-
+Hello There,
 This is a tutorial on how to install kerbrute on a linux VM running on a ARM64 processor (M1/M2)
+---- 
 
 
-First clone the repository
+
+Tutorial
+
+First lets clone the repository
 `git clone #https://github.com/ropnop/kerbrute.git`
 
 Navigate to the kerbrute directory
@@ -173,6 +176,10 @@ Flags:
   -v, --verbose            Log failures and errors
 
 Use "kerbrute [command] --help" for more information about a command.
+
+
+reference:
+	https://github.com/ropnop/kerbrute/issues/50
                                                                                            
 ````
 
