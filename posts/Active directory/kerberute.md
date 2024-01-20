@@ -1,6 +1,6 @@
-Hello There,
-This is a tutorial on how to install kerbrute on a linux VM running on a ARM64 processor (M1/M2)
----- 
+## Hello There,
+## This is a tutorial on how to install kerbrute on a linux VM running on a ARM64 processor (M1/M2)
+------
 
 
 
