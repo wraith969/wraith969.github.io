@@ -1,19 +1,35 @@
+Hello 
+
+This is a tutorial on how to install kerbrute on a linux VM running on a ARM64 processor (M1/M2)
+
+
 First clone the repository
 `git clone #https://github.com/ropnop/kerbrute.git`
 
-cd kerbrute 
+Navigate to the kerbrute directory
+`cd kerbrute `
 
-now lets modify the makefile 
-sudo nano MakeFile
+now lets modify the makefile to install the arm64 version of the tool 
+`sudo nano MakeFile`
 	add arm64 to the architecture
 	ARCHS=amd64 386 arm64
 
-install Golang 
-	sudo apt install gccgo-go && apt install golang-go
+```
+TARGET=./dist
+ARCHS=amd64 386 arm64
+GOOS=windows linux darwin
+PACKAGENAME="github.com/ropnop/kerbrute"
+--- SNIP ---
+
+```
+
+install Golang (dependency)
+`sudo apt install gccgo-go && apt install golang-go`
 
 
 now lets create the file 
-	Make file 
+`Make file`
+````
 	
 ┌──(wraith㉿kali)-[~/thm/tools/kerbrute]
 └─$ make linux
@@ -32,10 +48,11 @@ go: downloading golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 Building for linux 386...
 Building for linux arm64...
 Done.
+````
+now that we have successfully created the tool, lets navigate to the directory where the tool is stored
+`CD DIST`
 
-
-CD DIST
-
+````
 ┌──(wraith㉿kali)-[~/thm/tools/kerbrute/dist]
 └─$ ls -la     
 total 22548
@@ -45,10 +62,11 @@ drwxr-xr-x 8 wraith wraith    4096 Jan 14 04:55 ..
 -rwxr-xr-x 1 wraith wraith 7945397 Jan 14 04:55 kerbrute_linux_amd64
 -rwxr-xr-x 1 wraith wraith 7725705 Jan 14 04:55 kerbrute_linux_arm64
 
+````
+let's try to run the tool
+`./kerbrute_linux_arm64`
 
-
-./kerbrute_linux_arm64
-
+````
 ┌──(wraith㉿kali)-[~/thm/tools/kerbrute/dist]
 └─$ ./kerbrute_linux_arm64 
 
@@ -88,8 +106,75 @@ Flags:
   -v, --verbose            Log failures and errors
 
 Use "kerbrute [command] --help" for more information about a command.
-                                                                                                                               
+````
 
+BOOM .. We have our kerbrute up and running
+But for user convenience, lets create a command name `kerbrute` which will run this tool. 
+
+creating `kerbrute` command by adding The script to one of our path locations
+
+Display path
+`echo $PATH`
+
+```
+┌──(wraith㉿kali)-[~]
+└─$ echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+
+````
+
+Now lets rename the file to kerbrute
+
+`mv kerbrute_linux_arm64 kerbrute`
+
+lets copy the file to one of our path locations
+
+`cp kerbrute /usr/local/bin`
+
+Now we can use the Command `kerbrute` instead of always specifying the file path
+
+````
+┌──(wraith㉿kali)-[~]
+└─$ kerbrute                                                                 
+
+    __             __               __     
+   / /_____  _____/ /_  _______  __/ /____ 
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        
+
+Version: dev (9cfb81e) - 01/20/24 - Ronnie Flathers @ropnop
+
+This tool is designed to assist in quickly bruteforcing valid Active Directory accounts through Kerberos Pre-Authentication.
+It is designed to be used on an internal Windows domain with access to one of the Domain Controllers.
+Warning: failed Kerberos Pre-Auth counts as a failed login and WILL lock out accounts
+
+Usage:
+  kerbrute [command]
+
+Available Commands:
+  bruteforce    Bruteforce username:password combos, from a file or stdin
+  bruteuser     Bruteforce a single user's password from a wordlist
+  help          Help about any command
+  passwordspray Test a single password against a list of users
+  userenum      Enumerate valid domain usernames via Kerberos
+  version       Display version info and quit
+
+Flags:
+      --dc string          The location of the Domain Controller (KDC) to target. If blank, will lookup via DNS
+      --delay int          Delay in millisecond between each attempt. Will always use single thread if set
+  -d, --domain string      The full domain to use (e.g. contoso.com)
+      --downgrade          Force downgraded encryption type (arcfour-hmac-md5)
+      --hash-file string   File to save AS-REP hashes to (if any captured), otherwise just logged
+  -h, --help               help for kerbrute
+  -o, --output string      File to write logs to. Optional.
+      --safe               Safe mode. Will abort if any user comes back as locked out. Default: FALSE
+  -t, --threads int        Threads to use (default 10)
+  -v, --verbose            Log failures and errors
+
+Use "kerbrute [command] --help" for more information about a command.
+                                                                                           
+````
 
 
 
