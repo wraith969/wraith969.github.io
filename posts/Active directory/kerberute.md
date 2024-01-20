@@ -176,12 +176,14 @@ Flags:
   -v, --verbose            Log failures and errors
 
 Use "kerbrute [command] --help" for more information about a command.
+````
 
 
+--------
 reference:
 	https://github.com/ropnop/kerbrute/issues/50
                                                                                            
-````
+
 
 
 
