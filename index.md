@@ -24,6 +24,7 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 
 * * *
 
+![IMG_3308](https://github.com/wraith969/wraith969.github.io/assets/70425343/8306d79e-989b-4b21-8007-be607da99108)
 
 
 * * *
