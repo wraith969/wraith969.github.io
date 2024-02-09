@@ -7,9 +7,10 @@ This is a write-up for the H4cked room on tryhackme, this consists of analyzing 
 we will be using wireshark for the Analysis 
 `wireshark Capture.pcapng `
 <img width="992" alt="image" src="https://github.com/wraith969/wraith969.github.io/assets/70425343/fe427632-d354-46e0-8825-8723e3a8ce2a">
-
-
-
+<br>
+<br>
+<br>
+<br>
 
 ## Task 1  -- Oh no! We've been hacked!
 - The attacker is trying to log into a specific service. What service is this?
