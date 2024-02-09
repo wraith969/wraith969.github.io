@@ -24,9 +24,14 @@ note : to follow tcp stream, right click on the traffic then select tcp-stream u
 
 
 - There is a very popular tool by Van Hauser which can be used to brute force a series of services. What is the name of this tool?
-ANSWER --> hydra 
+
+
 Let's check the traffics for any brute-force attempts
+
+
 <img width="995" alt="image" src="https://github.com/wraith969/wraith969.github.io/assets/70425343/b821da11-5866-4ff6-a6df-35a4fa8b707c">
+
+
 
 here we found a brute-force attempt against The ftp service. now lets make a quick google search for tools used to brute-force ftp
 
