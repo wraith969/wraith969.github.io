@@ -30,7 +30,8 @@ Will be uploading Ctf walkthroughs, web exploitation tutorials and other cyberse
 
 * * *
 ### **TryHackMe Writeups:~#**
-
+-> [H4CK4D](https://wraith969.github.io/posts/Tryhackme/h4ckedctf.html) `Wireshark, Pcap analysis, `
+<!--- [[June 24 2023]] [Agent Sudo](https://sec-fortress.github.io/posts/thm/posts/agentsudo.html) `BruteForce, Redirections, Steganography`  --->
 
 * * *
 
