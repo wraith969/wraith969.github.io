@@ -13,21 +13,21 @@ we will be using wireshark for the Analysis
 
 ## Task 1  -- Oh no! We've been hacked!
 - The attacker is trying to log into a specific service. What service is this?
-Answer --> `FTP`
-The first request in the pcap file is a login request to port 21(FTP). Following the tcp-stream, we saw that the attacker tried to login-to the user 'Jenny' but failed
+
 <img width="993" alt="image" src="https://github.com/wraith969/wraith969.github.io/assets/70425343/de022bdf-112d-4110-a7a3-a5cbd121bcd6">
-
+Answer --> `FTP` <br> 
+The first request in the pcap file is a login request to port 21(FTP). Following the tcp-stream, we saw that the attacker tried to login-to the user 'Jenny' but failed <br> 
+<br>
 note : to follow tcp stream, right click on the traffic then select tcp-stream under the follow option
+<br>
 <img width="991" alt="image" src="https://github.com/wraith969/wraith969.github.io/assets/70425343/02d1f4e2-58ea-4ca8-af42-13574885071b">
-
-
-
-
+<br>
+<br>
+<br>
 - There is a very popular tool by Van Hauser which can be used to brute force a series of services. What is the name of this tool?
 
 
-Let's check the traffics for any brute-force attempts
-
+Let's check the traffics for any brute-force attempts<br>
 
 <img width="995" alt="image" src="https://github.com/wraith969/wraith969.github.io/assets/70425343/b821da11-5866-4ff6-a6df-35a4fa8b707c">
 
@@ -37,10 +37,12 @@ here we found a brute-force attempt against The ftp service. now lets make a qui
 
 <img width="990" alt="image" src="https://github.com/wraith969/wraith969.github.io/assets/70425343/f4e4e4e9-2214-4e14-8353-2b4ebef49cc4">
 
-We found a tool called hydra 
+We found a tool called hydra <br>
 
-Answer --> `HYDRA`
-
+Answer --> `HYDRA`<br>
+<br>
+<br>
+<br>
 
 - The attacker is trying to log on with a specific username. What is the username?
 
